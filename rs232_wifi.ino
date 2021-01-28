@@ -29,9 +29,8 @@ const char *pw = "your_passwd"; // and WiFi PASSWORD
 const int port = 10110;
 #endif
 
-char buf2[bufferSize];
-uint16_t i2=0;
-int x;
+char buf[bufferSize];
+int i;
 
 WiFiUDP udp;
 
@@ -68,8 +67,6 @@ void setup() {
     else if (error == OTA_END_ERROR) Serial.println("End Failed");
   });
   
-  ArduinoOTA.begin();
-  
   Serial.begin(UART_BAUD);
   SoftSerial.begin(SOFT_UART_BAUD);
 
@@ -79,7 +76,6 @@ void setup() {
     WiFi.softAP(ssid, pw);
   #endif
 
-  
   #ifdef MODE_STA
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, pw);
@@ -88,27 +84,26 @@ void setup() {
     }
   #endif
 
+  ArduinoOTA.begin();
 }
 
-
 void loop() {
-
+   ArduinoOTA.handle();
    if(Serial.available()) {
-      x = Serial.readBytesUntil('\n',buf2,bufferSize);
-      buf2[x]='\n';
+      i = Serial.readBytesUntil('\n',buf,bufferSize);
+      buf[i]='\n';
       udp.beginPacket(broadcast, port);
-      udp.write(buf2,x+1);
+      udp.write(buf,i+1);
       udp.endPacket();
-      //Serial.write(buf2,x+1);
+      //Serial.write(buf,i+1);
     }
 
     if(SoftSerial.available()) {
-      x = SoftSerial.readBytesUntil('\n',buf2,bufferSize);
-      buf2[x]='\n';
+      i = SoftSerial.readBytesUntil('\n',buf,bufferSize);
+      buf[i]='\n';
       udp.beginPacket(broadcast, port);
-      udp.write(buf2,x+1);
+      udp.write(buf,i+1);
       udp.endPacket();
-      //Serial.write(buf2,x+1);
+      //Serial.write(buf,i+1);
     }
-   
 }
